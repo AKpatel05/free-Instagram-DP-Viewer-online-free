@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="https://schema.org/SoftwareApplication">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram DP Viewer - View Full Size Profile Pictures Anonymously</title>
+    <meta name="description" content="View and download Instagram profile pictures in HD quality without login. Supports all resolutions up to 1080x1080 pixels. 100% private and secure.">
+    
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Instagram DP Viewer",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
+
+    <style>
+        :root {
+            --primary: #E1306C;
+            --background: #f5f5f5;
+            --text: #262626;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .input-group {
+            margin: 25px 0;
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .result-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .dp-image {
+            max-width: 100%;
+            border-radius: 50%;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            margin: 20px 0;
+            transition: transform 0.3s;
+        }
+
+        .size-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .size-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            button {
+                padding: 12px 20px;
+            }
+        }
+
+        /* Hidden SEO Content */
+        .seo-text {
+            position: absolute;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 Instagram DP Viewer</h1>
+        
+        <div class="input-group">
+            <input type="text" id="username" placeholder="Enter Instagram username" aria-label="Instagram username">
+            <button onclick="fetchDP()">View Profile Picture</button>
+        </div>
+
+        <div class="result-section" id="result">
+            <img src="" class="dp-image" id="dpImage" alt="Instagram profile picture">
+            <div class="size-options" id="sizeOptions"></div>
+            <button onclick="downloadDP()" id="downloadBtn" style="display: none;">Download HD Quality</button>
+        </div>
+
+        <div class="seo-text">
+            <h2>Instagram Profile Picture Viewer</h2>
+            <p>Free tool to view and download Instagram profile pictures in full HD quality. Works for private accounts and without login. Supports all resolutions up to 1080x1080 pixels.</p>
+        </div>
+    </div>
+
+<script>
+// Configuration
+const CDN_BASE_URL = 'https://instagram.{username}.jpg?size=';
+const SIZES = [150, 320, 480, 640, 1080];
+let currentUsername = '';
+
+async function fetchDP() {
+    const username = document.getElementById('username').value.trim();
+    if(!username) return;
+
+    try {
+        // Generate random user agent
+        const userAgent = generateUserAgent();
+        
+        // Fetch profile data
+        const response = await fetch(`https://www.instagram.com/${username}/?__a=1`, {
+            headers: { 'User-Agent': userAgent }
+        });
+        
+        if(!response.ok) throw new Error('User not found');
+        
+        const data = await response.json();
+        const profilePic = data.graphql.user.profile_pic_url_hd;
+        
+        // Show results
+        showDP(profilePic, username);
+        showSizeOptions();
+        currentUsername = username;
+    } catch(error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+function showDP(url, username) {
+    const img = document.getElementById('dpImage');
+    img.src = url.replace(/\/v[0-9]+\//, '/');
+    img.alt = `${username} Instagram profile picture`;
+    document.getElementById('downloadBtn').style.display = 'block';
+}
+
+function showSizeOptions() {
+    const container = document.getElementById('sizeOptions');
+    container.innerHTML = SIZES.map(size => `
+        <button class="size-btn" onclick="changeSize(${size})">${size}x${size}</button>
+    `).join('');
+}
+
+function changeSize(size) {
+    const img = document.getElementById('dpImage');
+    img.src = `${CDN_BASE_URL.replace('{username}', currentUsername)}${size}`;
+}
+
+function downloadDP() {
+    const link = document.createElement('a');
+    link.href = document.getElementById('dpImage').src;
+    link.download = `${currentUsername}_instagram_dp.jpg`;
+    link.click();
+}
+
+// Utility Functions
+function generateUserAgent() {
+    const agents = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ...',
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4 ...',
+        'Mozilla/5.0 (Linux; Android 12; SM-S901U) ...'
+    ];
+    return agents[Math.floor(Math.random() * agents.length)];
+}
+
+// Initialize
+document.getElementById('username').addEventListener('keypress', (e) => {
+    if(e.key === 'Enter') fetchDP();
+});
+</script>
+
+<!-- Legal Compliance -->
+<script>
+// Terms Acceptance Check
+if(localStorage.getItem('terms') !== 'accepted') {
+    if(confirm('This tool is for educational purposes only. Continue?')) {
+        localStorage.setItem('terms', 'accepted');
+    } else {
+        window.location.href = 'about:blank';
+    }
+}
+</script>
+
+</body>
+</html>
